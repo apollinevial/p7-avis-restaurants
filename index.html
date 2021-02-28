@@ -1,24 +1,35 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="UTF-8">
-    <title>Site d'avis de restaurants</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Site d'avis de restaurants</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" href="bootstrap-4.0.0/css/bootstrap.css">
+    </head>
 
 <body>
 
-
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-6 restaurants">
+                <p>restaurants</p>
+                <p>test</p>
+            </div>
+            <div class="col-xl-6 map" id="map">
+            </div>
+        </div>
+    </div>
+      
     <script src="js/jquery.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/client.js"></script>
-    <script src="js/avis.js"></script>
+    <script src="js/review.js"></script>
     <script src="js/restaurant.js"></script>
-    <script src="js/utilisateur.js"></script>
-    <script src="js/carte.js"></script>
+    <script src="js/user.js"></script>
+    <script src="js/map.js"></script>
     <script src="js/main.js"></script>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNsKPjjoTgstzfl7-RWgmAx3_tEQKghUQ&callback=initMap&libraries=&v=weekly" async></script>
 </body>
 
 </html>

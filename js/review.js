@@ -1,6 +1,6 @@
 class Review {
-    constructor(rating, comment) {
-        this.rating = rating;
+    constructor(stars, comment) {
+        this.stars = stars;
         this.comment = comment;
     }
 }
