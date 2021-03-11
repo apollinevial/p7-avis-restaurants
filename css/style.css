@@ -5,6 +5,8 @@
 
 #map {
   height: 100%;
+    width: 350px;
+    height: 540px;
 }
 
 /* Optional: Makes the sample page fill the window. */
