@@ -2,30 +2,35 @@ let map, infoWindow;
 
 function initMap() {
 
-    const bronco = {
+    /*coordonnées restaurants*/
+    const coordbronco = {
         lat: 48.8737815,
         lng: 2.3501649
     };
-    const babalou = {
+
+    const coordbabalou = {
         lat: 48.8865035,
         lng: 2.3442197
     };
 
+    /*création map*/
     let map = new google.maps.Map(document.getElementById("map"), {
-        center: bronco,
+        center: coordbronco,
         zoom: 10,
     });
 
+    /*création marqueurs restaurants*/
     const marker1 = new google.maps.Marker({
-        position: bronco,
+        position: coordbronco,
         map: map,
     });
 
     const marker2 = new google.maps.Marker({
-        position: babalou,
+        position: coordbabalou,
         map: map,
     });
 
+    /*geolocalisation*/
     infoWindow = new google.maps.InfoWindow();
 
     const locationButton = document.createElement("button");
@@ -86,3 +91,103 @@ babalou.location.longitude = 2.3442197;
 var tabRestaurants = [bronco, babalou];
 
 let mymap = new Mymap();
+
+
+/*XML*/
+/*var get = function (url) {
+    return new Promise(function (resolve, reject) {
+        var xhr = new window.XMLHttpRequest()
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    resolve(xhr.responseText)
+                } else {
+                    reject(xhr)
+                }
+            }
+        }
+        xhr.open('GET', url, true)
+        xhr.send()
+    })
+}
+
+
+var getPosts = async function () {
+    try {
+        var response = await get('../restaurants.json')
+        var restaurants = JSON.parse(response)
+    } catch(e) {
+        console.log('Il y a eu un problème', e)
+    }
+
+    return (restaurants)
+}
+
+
+getPosts().then(function (restaurants) {
+    console.log(restaurants[1])
+    
+}).catch(function (error) {
+    console.log(error)
+    
+}).then(function () {
+    console.log('Fin des requêtes AJAX')
+    
+})*/
+
+
+
+/*FETCH 1*/
+/*
+async function loadRestaurants() {
+    return (await fetch("../restaurants.json")).json();
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    let restaurants = [];
+    
+    try {
+        restaurants = await loadRestaurants();
+    } catch (e) {
+        console.log("Erreur !");
+        console.log(e);
+    }
+    console.log(restaurants);
+});*/
+
+
+/*FETCH 2*/
+fetch('../restaurants.json').then(res => {
+
+        if (res.ok) {
+            res.json().then(data => {
+                
+                console.log(data)
+
+                    for (var i = 0; i < data.length; i++) {
+                        
+                        var myRestaurant = document.createElement('article');
+                        var myRestaurantName = document.createElement('h2');
+                        var myRestaurantAddress = document.createElement('p');
+                        var myRestaurantLat = document.createElement('p');
+                        var myRestaurantLong = document.createElement('p');
+
+                        myRestaurantName.textContent = data[i].restaurantName;
+                        myRestaurantAddress.textContent = 'Address: ' + data[i].address;
+                        myRestaurantLat.textContent = 'Lat: ' + data[i].lat;
+                        myRestaurantLong.textContent = 'Long:' + data[i].long;
+
+                        myRestaurant.appendChild(myRestaurantName);
+                        myRestaurant.appendChild(myRestaurantAddress);
+                        myRestaurant.appendChild(myRestaurantLat);
+                        myRestaurant.appendChild(myRestaurantLong);
+
+                        document.getElementById('restaurants').appendChild(myRestaurant);
+                }
+            })
+            
+        } else {
+            console.log("Erreur");
+        }
+    })

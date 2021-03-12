@@ -1,8 +1,8 @@
 class Mymap {
     constructor() {
         /*this.createMap();
-        this.showUser();*/
-        this.showRestaurant(tabRestaurants);
+        this.showUser();
+        this.showRestaurant(tabRestaurants);*/
         
     }
 
@@ -11,7 +11,7 @@ class Mymap {
 
     }
     
-    showRestaurant(tabRestaurants) {
+    /*showRestaurant(tabRestaurants) {
         
         for (const tabRestaurant of tabRestaurants) {
 
@@ -22,7 +22,7 @@ class Mymap {
                 $(`<p>${tabRestaurant.location.longitude}</p>`).appendTo('.' + tabRestaurant.name);
             }
 
-    }
+    }*/
 
     showUser() {
 
