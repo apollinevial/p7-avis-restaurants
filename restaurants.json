@@ -26,6 +26,40 @@
             "comment":"Une minuscule pizzeria délicieuse cachée juste à côté du Sacré choeur !"
          },
          {
+            "stars":2.5,
+            "comment":"J'ai trouvé ça correct, sans plus"
+         }
+      ]
+   }
+    ,
+   {
+      "restaurantName":"Babalou",
+      "address":"4 Rue Lamarck, 75018 Paris",
+      "lat":48.9065035,
+      "long":2.4642197,
+      "ratings":[
+         {
+            "stars":5,
+            "comment":"Une minuscule pizzeria délicieuse cachée juste à côté du Sacré choeur !"
+         },
+         {
+            "stars":3,
+            "comment":"J'ai trouvé ça correct, sans plus"
+         }
+      ]
+   }
+    ,
+   {
+      "restaurantName":"Babalou",
+      "address":"4 Rue Lamarck, 75018 Paris",
+      "lat":48.9665035,
+      "long":2.6742197,
+      "ratings":[
+         {
+            "stars":5,
+            "comment":"Une minuscule pizzeria délicieuse cachée juste à côté du Sacré choeur !"
+         },
+         {
             "stars":3,
             "comment":"J'ai trouvé ça correct, sans plus"
          }

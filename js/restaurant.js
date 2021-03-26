@@ -10,7 +10,5 @@ class Restaurant {
         this.image = image;
     }
     
-    reviewsAverage() {
-        
-    }
+
 }

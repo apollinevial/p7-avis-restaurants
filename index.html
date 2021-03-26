@@ -1,23 +1,31 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Site d'avis de restaurants</title>
-        <link rel="stylesheet" type="text/css" href="css/style.css">
-        <link rel="stylesheet" href="bootstrap-4.0.0/css/bootstrap.css">
-    </head>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Site d'avis de restaurants</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="bootstrap-4.0.0/css/bootstrap.css">
+</head>
 
 <body>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-xl-6" id="restaurants">
+    <div class="container" id="test">
+        <div class="row filters">
+        </div>
+        <div class="row reviews">
+            <div class="col-12 col-xl-4" id="restaurants">
             </div>
-            <div class="col-xl-6" id="map">
+            <div class="col-12 col-xl-8" id="map-part">
+                <div id="map">
+                </div>
+                <div id="comments">
+                </div>
             </div>
+
         </div>
     </div>
-      
+
     <script src="js/jquery.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/client.js"></script>
@@ -26,7 +34,7 @@
     <script src="js/user.js"></script>
     <script src="js/map.js"></script>
     <script src="js/main.js" async></script>
-    
+
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNsKPjjoTgstzfl7-RWgmAx3_tEQKghUQ&callback=initMap&libraries=&v=weekly" async></script>
 </body>
 
