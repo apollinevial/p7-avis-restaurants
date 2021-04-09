@@ -4,6 +4,9 @@ function initMap() {
     themap.createMap();
 }
 
+
+
+
 /*FETCH*/
 fetch('../restaurants.json').then(res => {
 
@@ -11,11 +14,17 @@ fetch('../restaurants.json').then(res => {
         res.json().then(data => {
 
             themap.showRestaurant(data);
-return data;
-            console.log(data)
         })
 
     } else {
         console.log("Erreur");
     }
 })
+
+function getValue() {
+         var min = document.getElementById("min").value;
+        console.log(min);   
+    
+             var max = document.getElementById("max").value;
+        console.log(max); 
+}

@@ -1,8 +1,104 @@
+* {
+font-family: 'Lato', sans-serif;
+}
+
+button:focus {
+    outline: none !important;
+}
+
+h1,
+h1 strong {
+    font-weight: bold !important;
+}
+
+h1 {
+    color: #4477ee !important;
+    text-align: center;
+    padding: 50px 0;
+}
+
+/*vert*/
+h1 strong:nth-child(3),
+h1 strong:nth-child(6){
+    color: #43b66c;
+}
+
+/*jaune*/
+h1 strong:nth-child(2),
+h1 strong:nth-child(5) {
+    color: #ffc800;
+}
+
+/*rouge*/
+h1 strong:first-child,
+h1 strong:nth-child(4){
+    color: #ef233c;
+}
+
+
+#restaurants {
+   padding: 20px;
+}
+
+#restaurants article {
+        border-bottom: 1px solid #d8d8d8;
+    margin-bottom: 20px;
+}
+
+
+#restaurants h2,
+#comments h2{
+font-weight: 600;
+    font-size: 25px;
+}
+
+#restaurants .average,
+#comments .average,
+.review .number {
+        border: none;
+    background-color: inherit;
+    padding: 0;
+    margin-bottom: 0.5rem;
+    position: relative;
+    font-weight: 600;
+}
+
+.average img,
+.number img {
+        width: 20px;
+    height: auto;
+    margin-top: -8px;
+    margin-left: 5px;
+}
+
+.number,
+#comments .average{
+    display: flex;
+}
+
+.number p,
+#comments .average p{
+    margin-bottom: 0;
+}
+.avis {
+    font-size: 14px;
+    color: #9e9e9e;
+    text-decoration: underline;
+    background-color: inherit;
+    border: none;
+    padding-left: 6px;
+}
+
+.avis:hover {
+    cursor: pointer;
+}
+
 #map-part {
   height: 100%;
     width: 350px;
     height: 540px;
     position: relative;
+    padding: 0;
 }
 
 #map {
@@ -22,13 +118,15 @@ body {
     z-index: 999999999;
     position: absolute;
     background-color: white;
-    height: 100%;
+    height: calc(100% - 40px);
     width: 50%;
     box-shadow: 0px 0px 15px 7px #00000036;
     padding: 20px;
     opacity: 0;
-        top: 0;
-    left: 0;
+    top: 50%;
+    left: 20px;
+    overflow-y: scroll;
+    transform: translateY(-50%);
 }
 
 
@@ -46,4 +144,27 @@ body {
     position: absolute;
     right: 10px;
     top: 10px;
+}
+
+.filter {
+    padding-bottom: 30px;
+}
+
+.filter label {
+    font-size: 16px;
+    color: black;
+    text-decoration: none;
+    background-color: inherit;
+    border: none;
+    padding-right: 10px;
+    font-weight: 600;
+}
+
+.filter input:nth-child(2),
+.filter input:nth-child(3){
+    margin-right: 10px;
+}
+
+.filter input:nth-child(3) {
+    margin-left: 10px;
 }
