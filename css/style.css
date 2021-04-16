@@ -116,7 +116,7 @@ body {
 }
 
 #comments {
-    z-index: 999999999;
+    z-index: -1;
     position: absolute;
     background-color: white;
     height: calc(100% - 40px);
