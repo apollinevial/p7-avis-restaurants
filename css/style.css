@@ -43,6 +43,7 @@ h1 strong:nth-child(4){
 #restaurants article {
         border-bottom: 1px solid #d8d8d8;
     margin-bottom: 20px;
+    display: block;
 }
 
 
@@ -167,4 +168,19 @@ body {
 
 .filter input:nth-child(3) {
     margin-left: 10px;
+}
+
+#btnfiltre {
+    margin: 0 10px;
+    background-color: #4477ee;
+    border: none;
+    padding: 3px 20px;
+    cursor: pointer;
+    box-shadow: 0 0 10px 0px #00000047;
+    color: white;
+    border-radius: 30px;
+}
+
+.intro .col-4 img {
+    width: 100%;
 }

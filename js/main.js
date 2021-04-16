@@ -1,18 +1,17 @@
+//Création de l'objet map
 let themap = new Themap();
 
+//Génération de la Google map
 function initMap() {
     themap.createMap();
 }
 
-
-
-
-/*FETCH*/
+//Récupération des données json des restaurants
 fetch('../restaurants.json').then(res => {
 
     if (res.ok) {
         res.json().then(data => {
-
+            //Affichage des infos des restaurants
             themap.showRestaurant(data);
         })
 
@@ -21,10 +20,3 @@ fetch('../restaurants.json').then(res => {
     }
 })
 
-function getValue() {
-         var min = document.getElementById("min").value;
-        console.log(min);   
-    
-             var max = document.getElementById("max").value;
-        console.log(max); 
-}
