@@ -23,18 +23,29 @@
                 et
                 <input type="number" id="max" name="stars" min="1" max="5">
                 étoiles
-                
+
                 <button type="button" id="btnfiltre">Filtrer</button>
             </div>
         </div>
-        <div class="row reviews">
+        <div class="row reviews" id="app">
             <div class="col-12 col-xl-4" id="restaurants">
             </div>
             <div class="col-12 col-xl-8" id="map-part">
                 <div id="map">
                 </div>
-                <div id="comments">
+                <div id="popup-reviews">
                 </div>
+            </div>
+        </div>
+        <div class="col-12" id="popup-add-review">
+            <div class="row">
+                <label for="" class="col-3">Nombre d'étoiles :</label>
+                <input type="number" id="addstars" min="1" max="5" class="col-9">
+
+                <label for="" class="col-3">Commentaire :</label>
+                <textarea id="addcomment" name="addcomment" rows="" cols="" class="col-9"></textarea>
+
+                <button type="button" id="submit">Soumettre</button>
             </div>
 
         </div>
@@ -50,6 +61,4 @@
     <script src="js/main.js" async></script>
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNsKPjjoTgstzfl7-RWgmAx3_tEQKghUQ&map_ids=6f02331cadafb87d&callback=initMap&libraries=&v=weekly" async></script>
-</body>
-
-</html>
+</body></html>

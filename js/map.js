@@ -3,6 +3,7 @@ class Themap {
         this.map = null;
         this.infoWindow = null;
         this.markers = [];
+        this.data = null;
     }
 
 
@@ -102,38 +103,40 @@ class Themap {
 
     showRestaurant(data) {
 
+        this.data = data;
+
         //Afficher tous les restaurants au départ
-        this.showDatas(data);
+        this.showDatas();
 
         //Afficher les restaurants filtrés
-        this.filter(data);
+        this.filter();
     }
 
     //Method moyenne notes d'un restaurant
-    reviewsAverage(data) {
+    reviewsAverage(restau) {
         //création d'un tableau qui rassemble toutes les notes
         let sum = 0;
-        for (let i = 0; i < data.ratings.length; i++) {
-            sum += Number(data.ratings[i].stars);
+        for (let i = 0; i < restau.ratings.length; i++) {
+            sum += Number(restau.ratings[i].stars);
         }
-        return sum / data.ratings.length;
+        return sum / restau.ratings.length;
     }
 
 
     //Method affichage restaurants
-    showDatas(data) {
+    showDatas() {
 
-        for (let i = 0; i < data.length; i++) {
+        for (let i = 0; i < this.data.length; i++) {
 
             //Créer le marker associé sur la Google map
             const marker = new google.maps.Marker({
                 position: {
-                    lat: data[i].lat,
-                    lng: data[i].long
+                    lat: this.data[i].lat,
+                    lng: this.data[i].long
                 },
                 icon: "../img/picto-restau.png",
                 map: this.map,
-                restaurant: this.reviewsAverage(data[i])
+                restaurant: this.reviewsAverage(this.data[i])
             });
             this.markers.push(marker);
 
@@ -142,76 +145,61 @@ class Themap {
             let myRestaurant = document.createElement('article');
             myRestaurant.id = 'restau' + i;
             let myRestaurantName = document.createElement('h2');
-            let myRestaurantAverage = document.createElement('div');
+            let myRestaurantReview = document.createElement('div');
+            let myRestaurantAverage = document.createElement('p');
+            myRestaurantAverage.className = 'restau-average';
+            myRestaurantAverage.id = 'restau-average' + i;
 
-            myRestaurantAverage.className = 'average';
-            let myRestaurantStar = document.createElement('img');
-            myRestaurantStar.src = '../img/star.svg';
-            let myRestaurantRating = document.createElement('button');
-            myRestaurantRating.id = 'average' + i;
-            myRestaurantRating.className = 'avis';
+            myRestaurantReview.className = 'restau-review';
+            myRestaurantReview.id = 'restau-review' + i;
             
-            let addRating = document.createElement('div');
-            addRating.innerHTML += `
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo">Ajouter un avis</button>
-
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">New message</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-          <div class="mb-3">
-            <label for="recipient-name" class="col-form-label">Recipient:</label>
-            <input type="text" class="form-control" id="recipient-name">
-          </div>
-          <div class="mb-3">
-            <label for="message-text" class="col-form-label">Message:</label>
-            <textarea class="form-control" id="message-text"></textarea>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Send message</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-            `
-            /*addRating.id = 'newrating' + i;
-            addRating.className = 'avis';*/
+            let starImage = document.createElement('img');
+            starImage.src = '../img/star.svg';
             
+            let showRestaurantReview = document.createElement('button');
+            showRestaurantReview.id = 'show-restau-review' + i;
+            showRestaurantReview.className = 'avis';
+
+            let addRestaurantReview = document.createElement('button');
+            addRestaurantReview.id = 'add-restau-review' + i;
+            addRestaurantReview.className = 'avis';
+
             let myRestaurantAddress = document.createElement('p');
 
-            myRestaurantName.textContent = data[i].restaurantName;
-            myRestaurantAverage.textContent = this.reviewsAverage(data[i]);
-            myRestaurantRating.textContent = 'Voir les avis';
-            myRestaurantAddress.textContent = data[i].address;
+            myRestaurantName.textContent = this.data[i].restaurantName;
+            myRestaurantAverage.textContent = this.reviewsAverage(this.data[i]);
+            showRestaurantReview.textContent = 'Voir les avis';
+            addRestaurantReview.textContent = 'Ajouter un avis';
+            myRestaurantAddress.textContent = this.data[i].address;
 
             myRestaurant.appendChild(myRestaurantName);
-            myRestaurant.appendChild(myRestaurantAverage);
+            myRestaurant.appendChild(myRestaurantReview);
             myRestaurant.appendChild(myRestaurantAddress);
-            myRestaurantAverage.appendChild(myRestaurantStar);
-            myRestaurantAverage.appendChild(myRestaurantRating);
-            myRestaurantAverage.appendChild(addRating);
+            myRestaurantReview.appendChild(myRestaurantAverage);
+            myRestaurantReview.appendChild(starImage);
+            myRestaurantReview.appendChild(showRestaurantReview);
+            myRestaurantReview.appendChild(addRestaurantReview);
 
             document.getElementById('restaurants').appendChild(myRestaurant);
 
             //Au clic sur le bouton "Voir les avis" le détail des avis s'affiche 
-            document.getElementById('average' + i).addEventListener("click", (event) => {
+            document.getElementById('show-restau-review' + i).addEventListener("click", (event) => {
+                console.log("clic avant ");
                 event.stopPropagation();
-                this.showReviews(data[i])
+                this.showReview(this.data[i]);
+                console.log("clic");
+            });
+
+            //Au clic sur le bouton "Ajouter un avis" la popup s'affiche 
+            document.getElementById('add-restau-review' + i).addEventListener("click", (event) => {
+                event.stopPropagation();
+                this.addReview(i)
             });
         }
     }
 
     //Method filtrer les restaurants par note
-    filter(data) {
+    filter() {
 
         //Au clic sur le bouton du filtre
         document.getElementById('btnfiltre').addEventListener("click", (event) => {
@@ -221,9 +209,9 @@ class Themap {
             let max = document.getElementById("max").value;
 
             //Pour chaque restaurant
-            for (let i = 0; i < data.length; i++) {
+            for (let i = 0; i < this.data.length; i++) {
 
-                let average = this.reviewsAverage(data[i]);
+                let average = this.reviewsAverage(this.data[i]);
 
                 //Si la moyenne est comprise entre les deux nombres du filtre :
                 if (average >= min && average <= max) {
@@ -242,63 +230,68 @@ class Themap {
 
 
     //Method popup avis d'un restaurant
-    showReviews(data) {
+    showReview(restau) {
 
         //Affichage de tous les avis
-        document.getElementById('comments').style.opacity = 1;
-        document.getElementById('comments').style.zIndex = 999999999;
-        document.getElementById('comments').innerHTML = `
+        document.getElementById('popup-reviews').style.opacity = 1;
+        document.getElementById('popup-reviews').style.zIndex = 99;
+        document.getElementById('popup-reviews').innerHTML = `
         <div class="row intro">
             <div class="col-4">
-                <img src="https://maps.googleapis.com/maps/api/streetview?location=${data.lat},${data.long}&size=456x456&key=AIzaSyDNsKPjjoTgstzfl7-RWgmAx3_tEQKghUQ" alt="">
+                <img src="https://maps.googleapis.com/maps/api/streetview?location=${restau.lat},${restau.long}&size=456x456&key=AIzaSyDNsKPjjoTgstzfl7-RWgmAx3_tEQKghUQ" alt="">
             </div>
             <div class="col-8">
-                <h2> ${ data.restaurantName } </h2>
-                <div class="average"> <p>Note : ${ this.reviewsAverage(data) }</p> <img src="../img/star.svg">  </div>
+                <h2> ${ restau.restaurantName } </h2>
+                <div class="restau-review"> <p>Note : ${ this.reviewsAverage(restau) }</p> <img src="../img/star.svg">  </div>
                 <img class="close" src="../img/close.svg">
             </div>
         </div>
         `;
 
-        for (let i = 0; i < data.ratings.length; i++) {
-            document.getElementById('comments').innerHTML += `
+        for (let i = 0; i < restau.ratings.length; i++) {
+            document.getElementById('popup-reviews').innerHTML += `
             <div class="review ">
-            <div class="number"> <p>${data.ratings[i].stars}</p> <img src="../img/star.svg">  </div>
-            <p> ${data.ratings[i].comment} </p>
+            <div class="number"> <p>${restau.ratings[i].stars}</p> <img src="../img/star.svg">  </div>
+            <p> ${restau.ratings[i].comment} </p>
             </div>
             `;
         }
 
         //Au clic sur la croix on masque les avis
         $(".close").click(function () {
-            document.getElementById('comments').style.opacity = 0;
-            document.getElementById('comments').style.zIndex = -1;
+            document.getElementById('popup-reviews').style.opacity = 0;
+            document.getElementById('popup-reviews').style.zIndex = -1;
         });
     }
-    
-    addRating(data){
+
+    addReview(index) {
+        document.getElementById('popup-add-review').style.display= "block";
+
+        document.getElementById('submit').addEventListener("click", (event) => {
+            event.preventDefault();
+            
+            let stars = document.getElementById('addstars').value.trim();
+            let comment = document.getElementById('addcomment').value.trim();
+
+            if (stars !== "" && comment !== "") {
+                this.data[index].ratings.push({
+                    stars: parseInt(stars),
+                    comment: comment
+                });
+                
+           document.getElementById('popup-add-review').style.display= "none";
+            document.getElementById('restau-average' + index).textContent = this.reviewsAverage(this.data[index]);
+                
+                
+            } else {
+                alert("Remplissez les champs");
+            }
+
+        });
         
-        document.getElementById('test').innerHTML += `
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>
-`;
         
+
     }
-    
-    
+
+
 }
