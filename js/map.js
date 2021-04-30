@@ -23,21 +23,59 @@ class Themap {
         //Géolocalisation et affichage de l'utilisateur
         this.showUser();
 
-        //Au click sur un lieu ajout d'un marker
+        //Au click sur un lieu ajout d'un restaurant
         this.map.addListener("click", (e) => {
             this.addNewRestaurant(e.latLng, this.map);
         });
     }
 
 
-    //Method Ajout d'un nouveau marker au clic
+    //Method Ajout d'un nouveau restaurant au clic
     addNewRestaurant(latLng, map) {
-        new google.maps.Marker({
-            position: latLng,
-            map: this.map,
-            icon: "../img/picto-restau.png",
+
+        document.getElementById('popup-add-restaurant').style.display = "block";
+
+        document.getElementById('submit2').addEventListener("click", (event) => {
+            event.preventDefault();
+
+            let newname = document.getElementById('addname').value.trim();
+
+            console.log(newname);
+
+            if (newname !== "") {
+                this.data.push({
+                    restaurantName: newname,
+                    address: null,
+                    lat: latLng.lat(),
+                    long: latLng.lng(),
+                    ratings:[],
+                });
+
+                new google.maps.Marker({
+                    position: latLng,
+                    map: this.map,
+                    icon: "../img/picto-restau.png",
+                });
+                this.map.panTo(latLng);
+
+                document.getElementById('restaurants').innerHTML="";
+                this.showRestaurant(this.data);
+                
+                document.getElementById('popup-add-restaurant').style.display = "none";
+                
+                console.log(this.data);
+
+            } else {
+                alert("Remplissez les champs");
+            }
+
         });
-        this.map.panTo(latLng);
+
+        document.getElementById('close-popup2').addEventListener("click", (event) => {
+            event.preventDefault();
+            document.getElementById('popup-add-restaurant').style.display = "none";
+        });
+
     }
 
 
@@ -119,7 +157,8 @@ class Themap {
         for (let i = 0; i < restau.ratings.length; i++) {
             sum += Number(restau.ratings[i].stars);
         }
-        return sum / restau.ratings.length;
+        let result = sum / restau.ratings.length;
+        return result.toFixed(2);
     }
 
 
@@ -152,10 +191,10 @@ class Themap {
 
             myRestaurantReview.className = 'restau-review';
             myRestaurantReview.id = 'restau-review' + i;
-            
+
             let starImage = document.createElement('img');
             starImage.src = '../img/star.svg';
-            
+
             let showRestaurantReview = document.createElement('button');
             showRestaurantReview.id = 'show-restau-review' + i;
             showRestaurantReview.className = 'avis';
@@ -193,7 +232,7 @@ class Themap {
             //Au clic sur le bouton "Ajouter un avis" la popup s'affiche 
             document.getElementById('add-restau-review' + i).addEventListener("click", (event) => {
                 event.stopPropagation();
-                this.addReview(i)
+                this.addReview(i);
             });
         }
     }
@@ -265,31 +304,50 @@ class Themap {
     }
 
     addReview(index) {
-        document.getElementById('popup-add-review').style.display= "block";
+        document.getElementById('popup-add-review').style.display = "block";
 
-        document.getElementById('submit').addEventListener("click", (event) => {
+        document.getElementById('popup-title').textContent = this.data[index].restaurantName;
+
+        document.getElementById('submit1').addEventListener("click", (event) => {
             event.preventDefault();
-            
+
+            console.log(this.data[index].restaurantName);
+
             let stars = document.getElementById('addstars').value.trim();
             let comment = document.getElementById('addcomment').value.trim();
 
-            if (stars !== "" && comment !== "") {
+            console.log(stars);
+
+            if (stars !== "" && stars>0 && stars<5 && comment !== "") {
                 this.data[index].ratings.push({
                     stars: parseInt(stars),
                     comment: comment
                 });
-                
-           document.getElementById('popup-add-review').style.display= "none";
-            document.getElementById('restau-average' + index).textContent = this.reviewsAverage(this.data[index]);
-                
-                
-            } else {
-                alert("Remplissez les champs");
+
+                document.getElementById('popup-add-review').style.display = "none";
+
+                document.getElementById('restau-average' + index).textContent = this.reviewsAverage(this.data[index]);
+
+
+            } else if (comment == ""){
+                document.getElementById('errorcomment').innerHTML="Ce champ est obligatoire";  
+            } else if (stars == "") {
+                document.getElementById('errorstars').innerHTML="Ce champ est obligatoire";  
+            } else if (stars<0 || stars>5) {
+                document.getElementById('errorstars').innerHTML="Entrez un nombre entre 1 et 5";
+            }else {
+                alert("Remplissez tous les champs et assurez-vous que le nombre d'étoiles est bien compris entre 1 et 5");
             }
 
         });
-        
-        
+
+        document.getElementById('close-popup').addEventListener("click", (event) => {
+            event.preventDefault();
+            document.getElementById('popup-add-review').style.display = "none";
+
+            /*document.getElementById('addstars').innerHTML = "";
+            document.getElementById('addcomment').innerHTML = "";*/
+        });
 
     }
 

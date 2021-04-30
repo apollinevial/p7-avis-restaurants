@@ -28,25 +28,45 @@
             </div>
         </div>
         <div class="row reviews" id="app">
+           
             <div class="col-12 col-xl-4" id="restaurants">
             </div>
             <div class="col-12 col-xl-8" id="map-part">
+               <div class="info"><img src="img/info.svg" alt=""><p class="col-12">Cliquez sur la carte pour ajouter un nouvel établissement</p></div>
                 <div id="map">
                 </div>
                 <div id="popup-reviews">
                 </div>
             </div>
         </div>
-        <div class="col-12" id="popup-add-review">
-            <div class="row">
-                <label for="" class="col-3">Nombre d'étoiles :</label>
-                <input type="number" id="addstars" min="1" max="5" class="col-9">
+        <div class="col-12 popup" id="popup-add-review">
+            <form class="row" id="addreview-form">
+               <img class="close" id="close-popup" src="img/close.svg" alt="Fermer la popup">
+               <h2 class="col-12 popup-title" id="popup-title"></h2>
+               <div class="col-12 row field1">
+                    <label for="" class="col-3">Nombre d'étoiles :</label>
+                    <input type="number" id="addstars" min="1" max="5" class="col-9" required>
+                    <span class="error offset-3 col-9" id="errorstars"></span>
+                </div>
+                <div class="col-12 row field2">
+                    <label for="" class="col-3">Commentaire :</label>
+                    <textarea id="addcomment" name="addcomment" rows="" cols="" class="col-9" required></textarea>
+                    <span class="error offset-3 col-9" id="errorcomment"></span>
+                </div>
+                <button type="button" class="submit" id="submit1">Soumettre</button>
+            </form>
 
-                <label for="" class="col-3">Commentaire :</label>
-                <textarea id="addcomment" name="addcomment" rows="" cols="" class="col-9"></textarea>
-
-                <button type="button" id="submit">Soumettre</button>
-            </div>
+        </div>
+        <div class="col-12 popup" id="popup-add-restaurant">
+            <form class="row" id="addrestaurant-form">
+               <img class="close" id="close-popup2" src="img/close.svg" alt="Fermer la popup">
+               <h2 class="col-12 popup-title">Ajouter un nouvel établissement</h2>
+               <div class="col-12 row field1">
+                    <label for="" class="col-3">Nom :</label>
+                    <input type="text" id="addname"class="col-9">
+                </div>
+                <button type="button" class="submit" id="submit2">Soumettre</button>
+            </form>
 
         </div>
     </div>

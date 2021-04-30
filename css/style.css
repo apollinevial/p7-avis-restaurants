@@ -46,10 +46,9 @@ h1 strong:nth-child(4){
     display: block;
 }
 
-
-#restaurants h2,
-#popup-reviews h2{
-font-weight: 600;
+#app h2,
+.popup-title {
+    font-weight: 600;
     font-size: 25px;
 }
 
@@ -170,7 +169,7 @@ body {
     margin-left: 10px;
 }
 
-#btnfiltre {
+#btnfiltre, .submit {
     margin: 0 10px;
     background-color: #4477ee;
     border: none;
@@ -185,7 +184,8 @@ body {
     width: 100%;
 }
 
-#popup-add-review {
+#popup-add-review,
+#popup-add-restaurant {
     display: none;
     width: 100%;
     height: 100%;
@@ -197,9 +197,7 @@ body {
     z-index: 999;
 }
 
-#popup-add-review > .row  {
-    height: 60%;
-    width: 60%;
+.popup > .row  {
     background-color: white;
     position: absolute;
     top: 50%;
@@ -208,15 +206,55 @@ body {
     padding: 50px;
 }
 
-#popup-add-review label {
+.popup label {
     padding-left: 0;
 }
 
-#submit {
-        margin: auto;
-    margin-top: 20px;
+.submit {
+    margin: auto;
+    margin-top: 50px;
 }
 
 .restau-average {
     display: inline;
+}
+
+#close-popup,
+#close-popup2 {
+    width: 15px;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    cursor: pointer;
+}
+
+.popup-title {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+div.field1 {
+        margin-bottom: 30px;
+}
+
+.info {
+    padding: 15px 0;
+}
+
+.info img {
+    width: 17px;
+    display: inline;
+}
+
+.info p {
+    margin: 0;
+    display: inline;
+    padding-left: 10px;
+}
+
+form .error {
+    padding-left: 0;
+    padding-top: 2px;
+    color: #ef233c;
+    font-size: 14px;
 }
