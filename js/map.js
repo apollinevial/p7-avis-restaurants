@@ -1,9 +1,13 @@
 class Themap {
     constructor() {
         this.map = null;
+        this.geocoder = null;
         this.infoWindow = null;
         this.markers = [];
         this.data = null;
+        this.submit();
+        this.indexActif = 0;
+        this.review = true;
     }
 
 
@@ -20,6 +24,8 @@ class Themap {
             mapId: '6f02331cadafb87d'
         });
 
+        this.geocoder = new google.maps.Geocoder();
+
         //Géolocalisation et affichage de l'utilisateur
         this.showUser();
 
@@ -32,6 +38,7 @@ class Themap {
 
     //Method Ajout d'un nouveau restaurant au clic
     addNewRestaurant(latLng, map) {
+        const geocoder = new google.maps.Geocoder();
 
         document.getElementById('popup-add-restaurant').style.display = "block";
 
@@ -40,15 +47,13 @@ class Themap {
 
             let newname = document.getElementById('addname').value.trim();
 
-            console.log(newname);
-
             if (newname !== "") {
                 this.data.push({
                     restaurantName: newname,
-                    address: null,
                     lat: latLng.lat(),
                     long: latLng.lng(),
-                    ratings:[],
+                    address: this.geocodeLatLng(this.geocoder, this.map),
+                    ratings: []
                 });
 
                 new google.maps.Marker({
@@ -56,14 +61,13 @@ class Themap {
                     map: this.map,
                     icon: "../img/picto-restau.png",
                 });
+
                 this.map.panTo(latLng);
 
-                document.getElementById('restaurants').innerHTML="";
+                document.getElementById('restaurants').innerHTML = "";
                 this.showRestaurant(this.data);
-                
+
                 document.getElementById('popup-add-restaurant').style.display = "none";
-                
-                console.log(this.data);
 
             } else {
                 alert("Remplissez les champs");
@@ -152,6 +156,7 @@ class Themap {
 
     //Method moyenne notes d'un restaurant
     reviewsAverage(restau) {
+        if (restau.ratings.length !== 0){
         //création d'un tableau qui rassemble toutes les notes
         let sum = 0;
         for (let i = 0; i < restau.ratings.length; i++) {
@@ -159,6 +164,10 @@ class Themap {
         }
         let result = sum / restau.ratings.length;
         return result.toFixed(2);
+            } else {
+                this.review = false;
+                return "Aucun avis";
+            }
     }
 
 
@@ -210,6 +219,7 @@ class Themap {
             showRestaurantReview.textContent = 'Voir les avis';
             addRestaurantReview.textContent = 'Ajouter un avis';
             myRestaurantAddress.textContent = this.data[i].address;
+            console.log(this.data[i].address);
 
             myRestaurant.appendChild(myRestaurantName);
             myRestaurant.appendChild(myRestaurantReview);
@@ -223,15 +233,17 @@ class Themap {
 
             //Au clic sur le bouton "Voir les avis" le détail des avis s'affiche 
             document.getElementById('show-restau-review' + i).addEventListener("click", (event) => {
-                console.log("clic avant ");
                 event.stopPropagation();
                 this.showReview(this.data[i]);
-                console.log("clic");
             });
+            
+            
 
             //Au clic sur le bouton "Ajouter un avis" la popup s'affiche 
             document.getElementById('add-restau-review' + i).addEventListener("click", (event) => {
                 event.stopPropagation();
+                document.getElementById('addstars').value = "";
+                document.getElementById('addcomment').value = "";
                 this.addReview(i);
             });
         }
@@ -308,38 +320,6 @@ class Themap {
 
         document.getElementById('popup-title').textContent = this.data[index].restaurantName;
 
-        document.getElementById('submit1').addEventListener("click", (event) => {
-            event.preventDefault();
-
-            console.log(this.data[index].restaurantName);
-
-            let stars = document.getElementById('addstars').value.trim();
-            let comment = document.getElementById('addcomment').value.trim();
-
-            console.log(stars);
-
-            if (stars !== "" && stars>0 && stars<5 && comment !== "") {
-                this.data[index].ratings.push({
-                    stars: parseInt(stars),
-                    comment: comment
-                });
-
-                document.getElementById('popup-add-review').style.display = "none";
-
-                document.getElementById('restau-average' + index).textContent = this.reviewsAverage(this.data[index]);
-
-
-            } else if (comment == ""){
-                document.getElementById('errorcomment').innerHTML="Ce champ est obligatoire";  
-            } else if (stars == "") {
-                document.getElementById('errorstars').innerHTML="Ce champ est obligatoire";  
-            } else if (stars<0 || stars>5) {
-                document.getElementById('errorstars').innerHTML="Entrez un nombre entre 1 et 5";
-            }else {
-                alert("Remplissez tous les champs et assurez-vous que le nombre d'étoiles est bien compris entre 1 et 5");
-            }
-
-        });
 
         document.getElementById('close-popup').addEventListener("click", (event) => {
             event.preventDefault();
@@ -349,7 +329,66 @@ class Themap {
             document.getElementById('addcomment').innerHTML = "";*/
         });
 
+        this.indexActif = index;
     }
 
+    submit() {
+        document.getElementById('submit1').addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
 
+            let stars = document.getElementById('addstars').value.trim();
+            let comment = document.getElementById('addcomment').value.trim();
+
+            if (stars !== "" && stars > 0 && stars <= 5 && comment !== "") {
+                this.data[this.indexActif].ratings.push({
+                    stars: parseInt(stars),
+                    comment: comment
+                });
+
+                document.getElementById('popup-add-review').style.display = "none";
+
+                document.getElementById('restau-average' + this.indexActif).textContent = this.reviewsAverage(this.data[this.indexActif]);
+                this.showReview(this.data[this.indexActif]);
+
+            } else if (comment == "") {
+                document.getElementById('errorcomment').innerHTML = "Ce champ est obligatoire";
+            } else if (stars == "") {
+                document.getElementById('errorstars').innerHTML = "Ce champ est obligatoire";
+            } else if (stars < 1 || stars > 5) {
+                document.getElementById('errorstars').innerHTML = "Entrez un nombre entre 1 et 5";
+            } else {
+                alert("Remplissez tous les champs et assurez-vous que le nombre d'étoiles est bien compris entre 1 et 5");
+            }
+
+        });
+    }
+
+    geocodeLatLng(geocoder, map) {
+        console.log("resultat2");
+        const latlng = {
+            lat: 48.8865035,
+            lng: 2.3442197,
+        };
+
+        geocoder.geocode({
+            location: latlng
+        }, (results, status) => {
+            console.log(status);
+            console.log(results);
+            if (status === "OK") {
+                console.log("ok");
+                if (results[0]) {
+                    console.log(results[0].formatted_address);
+                    return results[0].formatted_address;
+                } else {
+                    return "Adresse non connue";
+                    window.alert("No results found");
+                }
+            } else {
+                window.alert("Geocoder failed due to: " + status);
+                return "Adresse non connue";
+            }
+        });
+    }
 }

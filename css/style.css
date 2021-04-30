@@ -38,6 +38,8 @@ h1 strong:nth-child(4){
 
 #restaurants {
    padding: 20px;
+    height: 600px;
+    overflow-y: auto;
 }
 
 #restaurants article {
@@ -127,6 +129,7 @@ body {
     left: 20px;
     overflow-y: scroll;
     transform: translateY(-50%);
+    margin-top: 54px;
 }
 
 
