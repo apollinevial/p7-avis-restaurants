@@ -38,6 +38,8 @@ h1 strong:nth-child(4){
 
 #restaurants {
    padding: 20px;
+    height: 600px;
+    overflow-y: auto;
 }
 
 #restaurants article {
@@ -46,17 +48,16 @@ h1 strong:nth-child(4){
     display: block;
 }
 
-
-#restaurants h2,
-#comments h2{
-font-weight: 600;
+#app h2,
+.popup-title {
+    font-weight: 600;
     font-size: 25px;
 }
 
-#restaurants .average,
-#comments .average,
+#restaurants .restau-review,
+#popup-reviews .restau-review,
 .review .number {
-        border: none;
+    border: none;
     background-color: inherit;
     padding: 0;
     margin-bottom: 0.5rem;
@@ -64,7 +65,7 @@ font-weight: 600;
     font-weight: 600;
 }
 
-.average img,
+.restau-review img,
 .number img {
         width: 20px;
     height: auto;
@@ -73,12 +74,12 @@ font-weight: 600;
 }
 
 .number,
-#comments .average{
+#popup-reviews .restau-review{
     display: flex;
 }
 
 .number p,
-#comments .average p{
+#popup-reviews .restau-review p{
     margin-bottom: 0;
 }
 .avis {
@@ -115,7 +116,7 @@ body {
   padding: 0;
 }
 
-#comments {
+#popup-reviews {
     z-index: -1;
     position: absolute;
     background-color: white;
@@ -128,6 +129,7 @@ body {
     left: 20px;
     overflow-y: scroll;
     transform: translateY(-50%);
+    margin-top: 54px;
 }
 
 
@@ -136,7 +138,7 @@ body {
     padding: 15px 0;
 }
 
-#comments > div.review:first-child {
+#popup-reviews > div.review:first-child {
     border-top: 1px solid #a9a9a947;
 }
 
@@ -170,7 +172,7 @@ body {
     margin-left: 10px;
 }
 
-#btnfiltre {
+#btnfiltre, .submit {
     margin: 0 10px;
     background-color: #4477ee;
     border: none;
@@ -183,4 +185,84 @@ body {
 
 .intro .col-4 img {
     width: 100%;
+}
+
+#popup-add-review,
+#popup-add-restaurant {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background-color: #00000050;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+}
+
+.popup > .row  {
+    background-color: white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 50px;
+}
+
+.popup label {
+    padding-left: 0;
+}
+
+.submit {
+    margin: auto;
+    margin-top: 50px;
+}
+
+.restau-average {
+    display: inline;
+}
+
+#close-popup,
+#close-popup2 {
+    width: 15px;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    cursor: pointer;
+}
+
+.popup-title {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+div.field1 {
+        margin-bottom: 30px;
+}
+
+.info {
+    padding: 15px 0;
+}
+
+.info img {
+    width: 17px;
+    display: inline;
+}
+
+.info p {
+    margin: 0;
+    display: inline;
+    padding-left: 10px;
+}
+
+form .error {
+    padding-left: 0;
+    padding-top: 2px;
+    color: #ef233c;
+    font-size: 14px;
+}
+
+#nofilter {
+    display: none;
+    color: #ef233c;
 }
