@@ -5,7 +5,9 @@ class Themap {
         this.infoWindow = null;
         this.markers = [];
         this.data = null;
-        this.submit();
+        this.coordoneees = null;
+        this.submitReview();
+        this.submitRestaurant();
         this.indexActif = 0;
         this.review = true;
     }
@@ -24,72 +26,39 @@ class Themap {
             mapId: '6f02331cadafb87d'
         });
 
-        this.geocoder = new google.maps.Geocoder();
+
 
         //Géolocalisation et affichage de l'utilisateur
         this.showUser();
 
         //Au click sur un lieu ajout d'un restaurant
         this.map.addListener("click", (e) => {
+            event.stopPropagation();
+            document.getElementById('addname').value = "";
             this.addNewRestaurant(e.latLng, this.map);
+            this.coordoneees = e.latLng;
         });
     }
 
 
     //Method Ajout d'un nouveau restaurant au clic
     addNewRestaurant(latLng, map) {
-        const geocoder = new google.maps.Geocoder();
+
+
 
         document.getElementById('popup-add-restaurant').style.display = "block";
-
-        document.getElementById('submit2').addEventListener("click", (event) => {
-            event.preventDefault();
-
-            let newname = document.getElementById('addname').value.trim();
-
-            if (newname !== "") {
-                this.data.push({
-                    restaurantName: newname,
-                    lat: latLng.lat(),
-                    long: latLng.lng(),
-                    address: this.geocodeLatLng(this.geocoder, this.map),
-                    ratings: []
-                });
-
-                new google.maps.Marker({
-                    position: latLng,
-                    map: this.map,
-                    icon: "../img/picto-restau.png",
-                });
-
-                this.map.panTo(latLng);
-
-                document.getElementById('restaurants').innerHTML = "";
-                this.showRestaurant(this.data);
-
-                document.getElementById('popup-add-restaurant').style.display = "none";
-
-            } else {
-                alert("Remplissez les champs");
-            }
-
-        });
 
         document.getElementById('close-popup2').addEventListener("click", (event) => {
             event.preventDefault();
             document.getElementById('popup-add-restaurant').style.display = "none";
         });
-
     }
 
 
     //Method Géolocalisation et affichage de l'utilisateur sur la carte
     showUser() {
 
-        /*Géolocalisation
-        this.infoWindow = new google.maps.InfoWindow();*/
-
-        // Try HTML5 geolocation.
+        /*Géolocalisation*/
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -97,9 +66,6 @@ class Themap {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude,
                     };
-                    /*this.infoWindow.setPosition(pos);
-                    this.infoWindow.setContent("Vous êtes ici.");
-                    this.infoWindow.open(this.map);*/
                     this.map.setCenter(pos);
 
                     const marker = new google.maps.Marker({
@@ -156,18 +122,18 @@ class Themap {
 
     //Method moyenne notes d'un restaurant
     reviewsAverage(restau) {
-        if (restau.ratings.length !== 0){
-        //création d'un tableau qui rassemble toutes les notes
-        let sum = 0;
-        for (let i = 0; i < restau.ratings.length; i++) {
-            sum += Number(restau.ratings[i].stars);
-        }
-        let result = sum / restau.ratings.length;
-        return result.toFixed(2);
-            } else {
-                this.review = false;
-                return "Aucun avis";
+        if (restau.ratings.length !== 0) {
+            //création d'un tableau qui rassemble toutes les notes
+            let sum = 0;
+            for (let i = 0; i < restau.ratings.length; i++) {
+                sum += Number(restau.ratings[i].stars);
             }
+            let result = sum / restau.ratings.length;
+            return result.toFixed(2);
+        } else {
+            this.review = false;
+            return "Aucun avis";
+        }
     }
 
 
@@ -187,7 +153,6 @@ class Themap {
                 restaurant: this.reviewsAverage(this.data[i])
             });
             this.markers.push(marker);
-
 
             //Afficher les informations du restaurant sur la section de gauche 
             let myRestaurant = document.createElement('article');
@@ -219,7 +184,6 @@ class Themap {
             showRestaurantReview.textContent = 'Voir les avis';
             addRestaurantReview.textContent = 'Ajouter un avis';
             myRestaurantAddress.textContent = this.data[i].address;
-            console.log(this.data[i].address);
 
             myRestaurant.appendChild(myRestaurantName);
             myRestaurant.appendChild(myRestaurantReview);
@@ -236,8 +200,6 @@ class Themap {
                 event.stopPropagation();
                 this.showReview(this.data[i]);
             });
-            
-            
 
             //Au clic sur le bouton "Ajouter un avis" la popup s'affiche 
             document.getElementById('add-restau-review' + i).addEventListener("click", (event) => {
@@ -259,22 +221,38 @@ class Themap {
             let min = document.getElementById("min").value;
             let max = document.getElementById("max").value;
 
-            //Pour chaque restaurant
-            for (let i = 0; i < this.data.length; i++) {
+            if ((min > 0 && min <= 5) && (max > 0 && max <= 5) && (min < max)) {
+                document.getElementById('nofilter').style.display = 'none';
 
-                let average = this.reviewsAverage(this.data[i]);
+                //Pour chaque restaurant
+                for (let i = 0; i < this.data.length; i++) {
 
-                //Si la moyenne est comprise entre les deux nombres du filtre :
-                if (average >= min && average <= max) {
+                    let average = this.reviewsAverage(this.data[i]);
 
-                    this.markers[i].setVisible(true);
+                    //Si la moyenne est comprise entre les deux nombres du filtre :
+                    if (average >= min && average <= max) {
 
-                    document.getElementById('restau' + i).style.display = 'block';
+                        this.markers[i].setVisible(true);
 
-                } else {
-                    this.markers[i].setVisible(false);
-                    document.getElementById('restau' + i).style.display = 'none';
+                        document.getElementById('restau' + i).style.display = 'block';
+
+                    } else {
+                        this.markers[i].setVisible(false);
+                        document.getElementById('restau' + i).style.display = 'none';
+                    }
                 }
+            } else {
+                if (min > max) {
+                    document.getElementById("nofilter").innerHTML = "Le nombre minimum ne peut pas être supérieur au nombre maximum";
+                    document.getElementById('nofilter').style.display = 'block';
+                } else if (min < 1 || min > 5) {
+                    document.getElementById("nofilter").innerHTML = "Veuillez saisir des nombres entre 1 et 5";
+                    document.getElementById('nofilter').style.display = 'block';
+                } else if (max < 1 || max > 5) {
+                    document.getElementById("nofilter").innerHTML = "Veuillez saisir des nombres entre 1 et 5";
+                    document.getElementById('nofilter').style.display = 'block';
+                }
+
             }
         });
     }
@@ -320,19 +298,15 @@ class Themap {
 
         document.getElementById('popup-title').textContent = this.data[index].restaurantName;
 
-
         document.getElementById('close-popup').addEventListener("click", (event) => {
             event.preventDefault();
             document.getElementById('popup-add-review').style.display = "none";
-
-            /*document.getElementById('addstars').innerHTML = "";
-            document.getElementById('addcomment').innerHTML = "";*/
         });
 
         this.indexActif = index;
     }
 
-    submit() {
+    submitReview() {
         document.getElementById('submit1').addEventListener("click", (event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -364,31 +338,166 @@ class Themap {
         });
     }
 
-    geocodeLatLng(geocoder, map) {
-        console.log("resultat2");
-        const latlng = {
-            lat: 48.8865035,
-            lng: 2.3442197,
-        };
+    submitRestaurant() {
 
-        geocoder.geocode({
-            location: latlng
-        }, (results, status) => {
-            console.log(status);
-            console.log(results);
-            if (status === "OK") {
-                console.log("ok");
-                if (results[0]) {
-                    console.log(results[0].formatted_address);
-                    return results[0].formatted_address;
-                } else {
-                    return "Adresse non connue";
-                    window.alert("No results found");
+
+        document.getElementById('submit2').addEventListener("click", (event) => {
+
+            const getAddress = address => {
+                return new Promise((resolve, reject) => {
+
+                    let geocoder = new google.maps.Geocoder();
+
+                    const latlng = {
+                        lat: this.coordoneees.lat(),
+                        lng: this.coordoneees.lng(),
+                    };
+
+                    geocoder.geocode({
+                        location: latlng
+                    }, (results, status) => {
+                        if (status === 'OK') {
+                            resolve(results[0].formatted_address);
+                        } else {
+                            reject(status);
+                        }
+                    });
+                });
+            };
+
+            const restaurantAddress = async () => {
+
+                try {
+                    let location = await getAddress();
+                    
+                    if (newname !== "") {
+                        this.data.push({
+                            restaurantName: newname,
+                            lat: this.coordoneees.lat(),
+                            long: this.coordoneees.lng(),
+                            address: location,
+                            ratings: []
+                        });
+
+                        new google.maps.Marker({
+                            position: this.coordoneees,
+                            map: this.map,
+                            icon: "../img/picto-restau.png",
+                        });
+
+                        this.map.panTo(this.coordoneees);
+
+                        var last = this.data.length - 1;
+
+                        //Afficher les informations du restaurant sur la section de gauche 
+                        let myRestaurant = document.createElement('article');
+                        myRestaurant.id = 'restau' + last;
+                        let myRestaurantName = document.createElement('h2');
+                        let myRestaurantReview = document.createElement('div');
+                        let myRestaurantAverage = document.createElement('p');
+                        myRestaurantAverage.className = 'restau-average';
+                        myRestaurantAverage.id = 'restau-average' + last;
+
+                        myRestaurantReview.className = 'restau-review';
+                        myRestaurantReview.id = 'restau-review' + last;
+
+                        let starImage = document.createElement('img');
+                        starImage.src = '../img/star.svg';
+
+                        let showRestaurantReview = document.createElement('button');
+                        showRestaurantReview.id = 'show-restau-review' + last;
+                        showRestaurantReview.className = 'avis';
+
+                        let addRestaurantReview = document.createElement('button');
+                        addRestaurantReview.id = 'add-restau-review' + last;
+                        addRestaurantReview.className = 'avis';
+
+                        let myRestaurantAddress = document.createElement('p');
+
+                        myRestaurantName.textContent = this.data[last].restaurantName;
+                        myRestaurantAverage.textContent = this.reviewsAverage(this.data[last]);
+                        showRestaurantReview.textContent = 'Voir les avis';
+                        addRestaurantReview.textContent = 'Ajouter un avis';
+                        myRestaurantAddress.textContent = this.data[last].address;
+
+                        myRestaurant.appendChild(myRestaurantName);
+                        myRestaurant.appendChild(myRestaurantReview);
+                        myRestaurant.appendChild(myRestaurantAddress);
+                        myRestaurantReview.appendChild(myRestaurantAverage);
+                        myRestaurantReview.appendChild(starImage);
+                        myRestaurantReview.appendChild(showRestaurantReview);
+                        myRestaurantReview.appendChild(addRestaurantReview);
+
+                        document.getElementById('restaurants').appendChild(myRestaurant);
+
+                        //Au clic sur le bouton "Voir les avis" le détail des avis s'affiche 
+                        document.getElementById('show-restau-review' + last).addEventListener("click", (event) => {
+                            event.stopPropagation();
+                            this.showReview(this.data[last]);
+                        });
+
+                        //Au clic sur le bouton "Ajouter un avis" la popup s'affiche 
+                        document.getElementById('add-restau-review' + last).addEventListener("click", (event) => {
+                            event.stopPropagation();
+                            document.getElementById('addstars').value = "";
+                            document.getElementById('addcomment').value = "";
+                            this.addReview(last);
+                        });
+
+
+                        document.getElementById('popup-add-restaurant').style.display = "none";
+
+                    } else {
+                        alert("Remplissez les champs");
+                    }
+
+
+                } catch (err) {
+                    console.warn(err);
                 }
-            } else {
-                window.alert("Geocoder failed due to: " + status);
-                return "Adresse non connue";
-            }
+            };
+
+            restaurantAddress();
+            event.preventDefault();
+
+            let newname = document.getElementById('addname').value.trim();
+
         });
+
     }
+
+    /*geocodeLatLng(map) {
+
+        return new Promise((resolve, reject) => {
+
+                let geocoder = new google.maps.Geocoder();
+
+                const latlng = {
+                    lat: this.coordoneees.lat(),
+                    lng: this.coordoneees.lng(),
+                };
+
+                geocoder.geocode({
+                    location: latlng
+                }, (results, status) => {
+                    if (status === "OK") {
+                        if (results[0]) {
+                            console.log("nouvelle-adresse " + results[0].formatted_address);
+                            return results[0].formatted_address;
+                            resolve(results[0].formatted_address);
+                        } else {
+                            return "Adresse non connue";
+                            window.alert("No results found");
+                            reject(status);
+                        }
+                    } else {
+                        window.alert("Geocoder failed due to: " + status);
+                        return "Adresse non connue";
+                        reject(status);
+                    }
+                });
+            });
+        }
+
+    }*/
 }

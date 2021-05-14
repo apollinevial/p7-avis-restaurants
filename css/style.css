@@ -261,3 +261,8 @@ form .error {
     color: #ef233c;
     font-size: 14px;
 }
+
+#nofilter {
+    display: none;
+    color: #ef233c;
+}
