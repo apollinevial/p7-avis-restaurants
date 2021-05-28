@@ -6,6 +6,7 @@ function initMap() {
     themap.createMap();
 }
 
+/*
 //Récupération des données json des restaurants
 fetch('../restaurants.json').then(res => {
 
@@ -19,4 +20,4 @@ fetch('../restaurants.json').then(res => {
         console.log("Erreur");
     }
 })
-
+*/
