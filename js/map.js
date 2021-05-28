@@ -1,6 +1,7 @@
 class Themap {
     constructor() {
         this.map = null;
+        this.service = null;
         this.geocoder = null;
         this.infoWindow = null;
         this.markers = [];
@@ -26,7 +27,19 @@ class Themap {
             mapId: '6f02331cadafb87d'
         });
 
+        let request = {
+            location: this.map.center,
+            radius: '500',
+            type: ['restaurant']
+        };
 
+        this.service = new google.maps.places.PlacesService(this.map);
+        this.service.nearbySearch(request, (results, status)=> {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                console.log(results);
+                this.showRestaurant(results);
+            }
+        });
 
         //Géolocalisation et affichage de l'utilisateur
         this.showUser();
@@ -39,6 +52,15 @@ class Themap {
             this.coordoneees = e.latLng;
         });
     }
+
+
+    /*callback(results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            console.log(results);
+            this.showRestaurant(results);
+
+        }
+    }*/
 
 
     //Method Ajout d'un nouveau restaurant au clic
@@ -122,7 +144,7 @@ class Themap {
 
     //Method moyenne notes d'un restaurant
     reviewsAverage(restau) {
-        if (restau.ratings.length !== 0) {
+        /*if (restau.ratings.length !== 0) {
             //création d'un tableau qui rassemble toutes les notes
             let sum = 0;
             for (let i = 0; i < restau.ratings.length; i++) {
@@ -133,7 +155,7 @@ class Themap {
         } else {
             this.review = false;
             return "Aucun avis";
-        }
+        }*/
     }
 
 
@@ -145,8 +167,8 @@ class Themap {
             //Créer le marker associé sur la Google map
             const marker = new google.maps.Marker({
                 position: {
-                    lat: this.data[i].lat,
-                    lng: this.data[i].long
+                    lat: this.data[i].geometry.location.lat,
+                    lng: this.data[i].geometry.location.long
                 },
                 icon: "../img/picto-restau.png",
                 map: this.map,
@@ -179,11 +201,11 @@ class Themap {
 
             let myRestaurantAddress = document.createElement('p');
 
-            myRestaurantName.textContent = this.data[i].restaurantName;
+            myRestaurantName.textContent = this.data[i].name;
             myRestaurantAverage.textContent = this.reviewsAverage(this.data[i]);
             showRestaurantReview.textContent = 'Voir les avis';
             addRestaurantReview.textContent = 'Ajouter un avis';
-            myRestaurantAddress.textContent = this.data[i].address;
+            myRestaurantAddress.textContent = this.data[i].vicinity;
 
             myRestaurant.appendChild(myRestaurantName);
             myRestaurant.appendChild(myRestaurantReview);
@@ -369,7 +391,7 @@ class Themap {
 
                 try {
                     let location = await getAddress();
-                    
+
                     if (newname !== "") {
                         this.data.push({
                             restaurantName: newname,
@@ -379,11 +401,12 @@ class Themap {
                             ratings: []
                         });
 
-                        new google.maps.Marker({
+                        const newmarker = new google.maps.Marker({
                             position: this.coordoneees,
                             map: this.map,
                             icon: "../img/picto-restau.png",
                         });
+                        this.markers.push(newmarker);
 
                         this.map.panTo(this.coordoneees);
 
