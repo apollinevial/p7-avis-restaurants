@@ -1,6 +1,8 @@
 class Themap {
     constructor() {
         this.map = null;
+        this.lat = 48.8737815;
+        this.lng = 2.3501649;
         this.service = null;
         this.geocoder = null;
         this.infoWindow = null;
@@ -17,56 +19,77 @@ class Themap {
     /*Method Création de la  carte*/
     createMap() {
 
-        //Génération de la Google map à partir de la doc de Google
-        this.map = new google.maps.Map(document.getElementById("map"), {
-            center: {
-                lat: 48.8737815,
-                lng: 2.3501649
-            },
-            zoom: 10,
-            mapId: '6f02331cadafb87d'
-        });
-
-        let request = {
-            location: this.map.center,
-            radius: '500',
-            type: ['restaurant']
-        };
-
-        this.service = new google.maps.places.PlacesService(this.map);
-        this.service.nearbySearch(request, (results, status)=> {
-            if (status == google.maps.places.PlacesServiceStatus.OK) {
-                console.log(results);
-                this.showRestaurant(results);
-            }
-        });
-
-        //Géolocalisation et affichage de l'utilisateur
-        this.showUser();
-
-        //Au click sur un lieu ajout d'un restaurant
-        this.map.addListener("click", (e) => {
-            event.stopPropagation();
-            document.getElementById('addname').value = "";
-            this.addNewRestaurant(e.latLng, this.map);
-            this.coordoneees = e.latLng;
-        });
-    }
+        /*Géolocalisation
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    console.log('avant' + this.lat);
+                        this.lat = position.coords.latitude;
+                    console.log('apres' + this.lat);
+                        this.lng = position.coords.longitude;
+                });
+                }
+        console.log('apres le if' + this.lat);*/
 
 
-    /*callback(results, status) {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-            console.log(results);
-            this.showRestaurant(results);
+
+        const getCoords = () => {
+
+            return new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject)
+            })
 
         }
-    }*/
+        
+        const getLocation = async () => {
 
+            let position = await getCoords();
+            this.lat = position.coords.latitude;
+            this.lng = position.coords.longitude;
+
+        };
+
+
+        getLocation().then(res => {
+
+            //Génération de la Google map à partir de la doc de Google
+            this.map = new google.maps.Map(document.getElementById("map"), {
+                center: {
+                    lat: this.lat,
+                    lng: this.lng
+                },
+                zoom: 10,
+                mapId: '6f02331cadafb87d'
+            });
+
+
+            let request = {
+                location: this.map.center,
+                radius: '500',
+                type: ['restaurant']
+            };
+
+            this.service = new google.maps.places.PlacesService(this.map);
+            this.service.nearbySearch(request, (results, status) => {
+                if (status == google.maps.places.PlacesServiceStatus.OK) {
+                    console.log(results);
+                    this.showRestaurant(results);
+                }
+            });
+
+            //Au click sur un lieu ajout d'un restaurant
+            this.map.addListener("click", (e) => {
+                event.stopPropagation();
+                document.getElementById('addname').value = "";
+                this.addNewRestaurant(e.latLng, this.map);
+                this.coordoneees = e.latLng;
+            });
+
+        })
+    }
 
     //Method Ajout d'un nouveau restaurant au clic
     addNewRestaurant(latLng, map) {
-
-
 
         document.getElementById('popup-add-restaurant').style.display = "block";
 
@@ -90,37 +113,38 @@ class Themap {
                     };
                     this.map.setCenter(pos);
 
-                    const marker = new google.maps.Marker({
+                    /*const marker = new google.maps.Marker({
                         position: {
                             lat: position.coords.latitude,
                             lng: position.coords.longitude
                         },
                         icon: "../img/picto-bonhomme.png",
                         map: this.map,
-                    });
+                    });*/
 
                     /*Au clic sur le marker texte Vous êtes ici*/
-                    var infoWindow = new google.maps.InfoWindow({
+                    /*var infoWindow = new google.maps.InfoWindow({
                         content: "Vous êtes ici"
                     });
                     google.maps.event.addListener(marker, 'click', function () {
                         infoWindow.open(map, marker);
-                    });
+                    });*/
 
                 },
                 () => {
-                    this.handleLocationError(true);
-                }
-            );
+                    this.handleLocationError(true, map.getCenter());
+                });
+
         } else {
-            // Le navigateur ne permet pas la géolocalisation
-            this.handleLocationError(false);
+            this.handleLocationError(false, map.getCenter());
+
         }
     }
 
 
-    handleLocationError(browserHasGeolocation) {
-        this.infoWindow.setPosition(this.map.getCenter());
+
+    handleLocationError(browserHasGeolocation, pos) {
+        this.infoWindow.setPosition(pos);
         this.infoWindow.setContent(
             browserHasGeolocation ?
             "Erreur: le service de géolocalisation ne fonctionne pas." :
@@ -166,10 +190,7 @@ class Themap {
 
             //Créer le marker associé sur la Google map
             const marker = new google.maps.Marker({
-                position: {
-                    lat: this.data[i].geometry.location.lat,
-                    lng: this.data[i].geometry.location.long
-                },
+                position: this.data[i].geometry.location,
                 icon: "../img/picto-restau.png",
                 map: this.map,
                 restaurant: this.reviewsAverage(this.data[i])
@@ -202,7 +223,7 @@ class Themap {
             let myRestaurantAddress = document.createElement('p');
 
             myRestaurantName.textContent = this.data[i].name;
-            myRestaurantAverage.textContent = this.reviewsAverage(this.data[i]);
+            myRestaurantAverage.textContent = this.data[i].rating;
             showRestaurantReview.textContent = 'Voir les avis';
             addRestaurantReview.textContent = 'Ajouter un avis';
             myRestaurantAddress.textContent = this.data[i].vicinity;
@@ -282,31 +303,55 @@ class Themap {
 
     //Method popup avis d'un restaurant
     showReview(restau) {
-
         //Affichage de tous les avis
         document.getElementById('popup-reviews').style.opacity = 1;
         document.getElementById('popup-reviews').style.zIndex = 99;
-        document.getElementById('popup-reviews').innerHTML = `
+        document.getElementById('popup-reviews').innerHTML += `
         <div class="row intro">
             <div class="col-4">
-                <img src="https://maps.googleapis.com/maps/api/streetview?location=${restau.lat},${restau.long}&size=456x456&key=AIzaSyDNsKPjjoTgstzfl7-RWgmAx3_tEQKghUQ" alt="">
+                <img src="https://maps.googleapis.com/maps/api/streetview?location=${parseInt(restau.geometry.location.lat)},${restau.geometry.location.lng}&size=456x456&key=AIzaSyDNsKPjjoTgstzfl7-RWgmAx3_tEQKghUQ" alt="">
             </div>
             <div class="col-8">
-                <h2> ${ restau.restaurantName } </h2>
-                <div class="restau-review"> <p>Note : ${ this.reviewsAverage(restau) }</p> <img src="../img/star.svg">  </div>
+                <h2> ${ restau.name } </h2>
+                <div class="restau-review"> <p>Note : ${ restau.rating }</p> <img src="../img/star.svg">  </div>
                 <img class="close" src="../img/close.svg">
             </div>
         </div>
         `;
 
-        for (let i = 0; i < restau.ratings.length; i++) {
-            document.getElementById('popup-reviews').innerHTML += `
+        var request = {
+            placeId: restau.place_id,
+        };
+
+        this.service = new google.maps.places.PlacesService(map);
+        this.service.getDetails(request, callback);
+
+        function callback(place, status) {
+            if (status == google.maps.places.PlacesServiceStatus.OK) {
+                console.log(place);
+                $.each(place.reviews, function (i, f) {
+
+                    document.getElementById('popup-reviews').innerHTML += `
             <div class="review ">
-            <div class="number"> <p>${restau.ratings[i].stars}</p> <img src="../img/star.svg">  </div>
-            <p> ${restau.ratings[i].comment} </p>
+            <div class="number"> <p>${f.rating}</p> <img src="../img/star.svg">  </div>
+            <p> ${f.text} </p>
             </div>
             `;
+
+                });
+
+            }
         }
+
+
+        /*for (let i = 0; i < restau.user_ratings_total.length; i++) {
+            document.getElementById('popup-reviews').innerHTML += `
+                <div class="review ">
+                <div class="number"> <p>${restau.ratings[i].stars}</p> <img src="../img/star.svg">  </div>
+                <p> ${restau.ratings[i].comment} </p>
+                </div>
+                `;
+        }*/
 
         //Au clic sur la croix on masque les avis
         $(".close").click(function () {
