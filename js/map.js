@@ -75,7 +75,59 @@ class Themap {
                 this.coordoneees = e.latLng;
             });
 
-        })
+            //Lorsqu'on se déplace sur la carte
+            this.map.addListener("dragend", () => {
+
+
+
+                //Récupère centre carte
+                let changement = this.map.getCenter();
+
+
+
+                //Récupère coordonnées
+                let latitude = changement.lat();
+                let longitude = changement.lng();
+
+                //Changement centre carte
+                this.map.setCenter(new google.maps.LatLng(latitude, longitude), 20);
+
+                //Recherche de restaurants à proximité
+                let request = {
+                    location: this.map.center,
+                    radius: '1000',
+                    type: ['restaurant']
+                };
+
+                // Supprime tous les enfant d'un élément
+                var element = document.getElementById("restaurants");
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+
+                //Boucles supprime les markers existants
+                for (let i = 0; i < this.markers.length; i++) {
+                    this.markers[i].setMap(null);
+                }
+
+                //Vide le tableau des marqueurs
+                this.markers = [];
+
+                //Vide tableau des données restaurants
+                this.data = null;
+
+                //Affichage des infos des restaurants à proximité
+                this.service = new google.maps.places.PlacesService(this.map);
+                this.service.nearbySearch(request, (results, status) => {
+                    if (status == google.maps.places.PlacesServiceStatus.OK) {
+
+                        this.showRestaurant(results);
+                    }
+                });
+
+
+            });
+        });
     }
 
 
@@ -107,6 +159,7 @@ class Themap {
 
     //Method : Calcul moyenne notes d'un restaurant
     reviewsAverage(restau) {
+        /*
         if (restau.ratings && restau.ratings.length !== 0) {
             //création d'un tableau qui rassemble toutes les notes
             let sum = 0;
@@ -117,21 +170,30 @@ class Themap {
             return result.toFixed(1);
         } else {
             return "Aucun avis";
+        }*/
+        
+        if (restau.rating) {
+            //création d'un tableau qui rassemble toutes les notes
+            
+            return restau.rating;
+        } else {
+            return "Aucun avis";
         }
     }
 
 
+
+
     //Method : Affichage infos restaurants
-    showDatas() {
+    async showDatas() {
 
         for (let i = 0; i < this.data.length; i++) {
 
             this.data[i].ratings = [];
+            console.log(this.data[i].ratings);
 
             //Ajoute avis en ligne au tableau
-            this.OnlineReviews(this.data[i]);
-
-
+            await this.OnlineReviews(this.data[i]);
 
             //Créer le marker associé sur la Google map
             const marker = new google.maps.Marker({
@@ -208,20 +270,18 @@ class Themap {
         };
 
         this.service = new google.maps.places.PlacesService(this.map);
-        this.service.getDetails(request, callback);
+        this.service.getDetails(request,
+            (place, status) => {
+                if (status == google.maps.places.PlacesServiceStatus.OK) {
+                    $.each(place.reviews, function (i, f) {
 
-        function callback(place, status) {
-            if (status == google.maps.places.PlacesServiceStatus.OK) {
-                $.each(place.reviews, function (i, f) {
-
-
-                    data.ratings.push({
-                        stars: Number(f.rating),
-                        comment: f.text
+                        data.ratings.push({
+                            stars: Number(f.rating),
+                            comment: f.text
+                        });
                     });
-                });
-            }
-        }
+                }
+            });
 
     }
 
@@ -275,8 +335,6 @@ class Themap {
 
     //Method popup avis d'un restaurant
     showReview(restau) {
-
-        console.log(typeof restau.geometry.location.lat);
 
         if (typeof (restau.geometry.location.lat) === 'function') {
             var restauLat = restau.geometry.location.lat();
