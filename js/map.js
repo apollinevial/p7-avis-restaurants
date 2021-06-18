@@ -4,7 +4,6 @@ class Themap {
         this.lat = 48.8737815;
         this.lng = 2.3501649;
         this.service = null;
-        this.geocoder = null;
         this.markers = [];
         this.data = null;
         this.coordoneees = null;
@@ -14,29 +13,28 @@ class Themap {
     }
 
 
-    //Method : Création de la  carte
+    //METHOD : Création de la  carte
     createMap() {
 
-        //Fonction récupération coordonées géolocalisation
+        //Récupération coordonées géolocalisation
         const getCoords = () => {
             return new Promise((resolve, reject) => {
                 navigator.geolocation.getCurrentPosition(resolve, reject)
             })
         }
 
-        //Fonction création variables lat et lng
+        //Création variables lat et lng
         const getLocation = async () => {
             let position = await getCoords();
 
-            var geolocationLat = position.coords.latitude;
-            var geolocationLng = position.coords.longitude;
+            let geolocationLat = position.coords.latitude;
+            let geolocationLng = position.coords.longitude;
 
             //Si les coordonnées renvoient un lieu existant alors on change les variables lat et lng sinon on garde celles de Paris
             if (geolocationLat !== null && geolocationLng !== null) {
                 this.lat = position.coords.latitude;
                 this.lng = position.coords.longitude;
             }
-
         };
 
         //Création de la carte 
@@ -78,12 +76,8 @@ class Themap {
             //Lorsqu'on se déplace sur la carte
             this.map.addListener("dragend", () => {
 
-
-
                 //Récupère centre carte
                 let changement = this.map.getCenter();
-
-
 
                 //Récupère coordonnées
                 let latitude = changement.lat();
@@ -99,13 +93,13 @@ class Themap {
                     type: ['restaurant']
                 };
 
-                // Vide la colonne de gauche qui affiche les restaurants
-                var element = document.getElementById("restaurants");
+                //Vide la colonne de gauche qui affiche les restaurants
+                let element = document.getElementById("restaurants");
                 while (element.firstChild) {
                     element.removeChild(element.firstChild);
                 }
 
-                //Boucle qui supprime les markers existants
+                //Efface les markers existants
                 for (let i = 0; i < this.markers.length; i++) {
                     this.markers[i].setMap(null);
                 }
@@ -125,15 +119,15 @@ class Themap {
                     }
                 });
 
-
             });
         });
     }
 
 
-    //Method Ajout d'un nouveau restaurant au clic
+    //METHOD : Ajout d'un nouveau restaurant au clic
     addNewRestaurant(latLng, map) {
 
+        //Pop up avec champ restaurant
         document.getElementById('popup-add-restaurant').style.display = "block";
 
         document.getElementById('close-popup2').addEventListener("click", (event) => {
@@ -142,110 +136,223 @@ class Themap {
         });
     }
 
+    //METHOD : Validation formulaire ajout restau
+    submitRestaurant() {
 
-    //Method : Appel methods qui affiche infos restaus + fonctionnement filtre
+        //Au clic sur "Soumettre"
+        document.getElementById('submit2').addEventListener("click", (event) => {
+
+            //Récupération coordonées du point où l'on a cliqué
+            const getAddress = address => {
+                return new Promise((resolve, reject) => {
+
+                    let geocoder = new google.maps.Geocoder();
+
+                    const latlng = {
+                        lat: this.coordoneees.lat(),
+                        lng: this.coordoneees.lng(),
+                    };
+
+                    geocoder.geocode({
+                        location: latlng
+                    }, (results, status) => {
+                        if (status === 'OK') {
+                            resolve(results[0].formatted_address);
+                        } else {
+                            reject(status);
+                        }
+                    });
+                });
+            };
+
+            //Affichage infos nouveau restaurant
+            const restaurantAddress = async () => {
+
+                try {
+                    let location = await getAddress();
+
+                    //Ajout du restaurant au tableau
+                    if (newname !== "") {
+                        this.data.push({
+                            name: newname,
+                            geometry: {
+                                location: {
+                                    lat: this.coordoneees.lat(),
+                                    lng: this.coordoneees.lng()
+                                }
+                            },
+                            vicinity: location
+                        });
+
+                        //Création marqueur
+                        const newmarker = new google.maps.Marker({
+                            position: this.coordoneees,
+                            map: this.map,
+                            icon: "../img/picto-restau.png",
+                        });
+                        this.markers.push(newmarker);
+
+                        this.map.panTo(this.coordoneees);
+
+                        let last = this.data.length - 1;
+
+                        this.data[last].ratings = [];
+
+                        this.data[last].newratings = [];
+
+                        //Afficher les informations du restaurant sur la section de gauche 
+                        let myRestaurant = document.createElement('article');
+                        myRestaurant.id = 'restau' + last;
+                        let myRestaurantName = document.createElement('h2');
+                        let myRestaurantReview = document.createElement('div');
+                        let myRestaurantAverage = document.createElement('p');
+                        myRestaurantAverage.className = 'restau-average';
+                        myRestaurantAverage.id = 'restau-average' + last;
+
+                        myRestaurantReview.className = 'restau-review';
+                        myRestaurantReview.id = 'restau-review' + last;
+
+                        let starImage = document.createElement('img');
+                        starImage.src = '../img/star.svg';
+
+                        let showRestaurantReview = document.createElement('button');
+                        showRestaurantReview.id = 'show-restau-review' + last;
+                        showRestaurantReview.className = 'avis';
+
+                        let addRestaurantReview = document.createElement('button');
+                        addRestaurantReview.id = 'add-restau-review' + last;
+                        addRestaurantReview.className = 'avis';
+
+                        let myRestaurantAddress = document.createElement('p');
+
+                        myRestaurantName.textContent = this.data[last].name;
+                        myRestaurantAverage.textContent = "Aucun avis";
+                        showRestaurantReview.textContent = 'Voir les avis';
+                        addRestaurantReview.textContent = 'Ajouter un avis';
+                        myRestaurantAddress.textContent = this.data[last].vicinity;
+
+                        myRestaurant.appendChild(myRestaurantName);
+                        myRestaurant.appendChild(myRestaurantReview);
+                        myRestaurant.appendChild(myRestaurantAddress);
+                        myRestaurantReview.appendChild(myRestaurantAverage);
+                        myRestaurantReview.appendChild(starImage);
+                        myRestaurantReview.appendChild(showRestaurantReview);
+                        myRestaurantReview.appendChild(addRestaurantReview);
+
+                        document.getElementById('restaurants').appendChild(myRestaurant);
+
+                        //Au clic sur le bouton "Voir les avis" le détail des avis s'affiche 
+                        document.getElementById('show-restau-review' + last).addEventListener("click", (event) => {
+                            event.stopPropagation();
+                            this.showReview(this.data[last]);
+                        });
+
+                        //Au clic sur le bouton "Ajouter un avis" la popup s'affiche 
+                        document.getElementById('add-restau-review' + last).addEventListener("click", (event) => {
+                            event.stopPropagation();
+                            document.getElementById('addstars').value = "";
+                            document.getElementById('addcomment').value = "";
+                            this.addReview(last);
+                        });
+
+                        document.getElementById('popup-add-restaurant').style.display = "none";
+
+                    } else {
+                        alert("Remplissez les champs");
+                    }
+
+                } catch (err) {
+                    console.log(err);
+                }
+            };
+
+            restaurantAddress();
+            event.preventDefault();
+
+            let newname = document.getElementById('addname').value.trim();
+
+        });
+
+    }
+
+
+    //METHOD : Appel methodes qui affichent infos restaus + filtre
     showRestaurant(data) {
 
         //Regroupe toutes les données des restaurants dans un tableau
         this.data = data;
-        console.log(data);
 
-        //Afficher tous les restaurants au départ
+        //Affiche tous les restaurants au chargement
         this.showDatas();
 
-        //Afficher les restaurants filtrés
+        //Affiche les restaurants filtrés
         this.filter();
     }
 
 
-    //Method : Calcul moyenne notes d'un restaurant
+    //METHOD : Calcul moyenne notes d'un restaurant
     reviewsAverage(restau) {
 
+        //Si on a que les avis récupérés en ligne
         if (restau.rating && restau.newratings.length == 0) {
-            console.log("juste en ligne")
 
+            //On affiche la propriété "rating" de notre restaurant
             return restau.rating;
-        }   else if (typeof restau.rating == 'undefined' && restau.newratings.length !== 0) {
-            console.log("juste mano")
-            
 
+            //Si on a que des avis rentrés à la main via la popup
+        } else if (typeof restau.rating == 'undefined' && restau.newratings.length !== 0) {
 
-            let summano = 0;
+            //On calcule la moyenne des avis ajoutés
+            let sum = 0;
             for (let i = 0; i < restau.newratings.length; i++) {
-                summano += restau.newratings[i];
+                //On additionne les avis
+                sum += restau.newratings[i];
             }
-            let new_ratings_mano = summano;
+            let new_ratings = sum;
 
-            let newReviewsAverage2 = new_ratings_mano / restau.newratings.length;
-            console.log("new-reviews-average2" + newReviewsAverage2);
+            //On divise la somme des avis par le nombre d'avis
+            let newReviewsAverage = new_ratings / restau.newratings.length;
 
-            return newReviewsAverage2.toFixed(1);
-            
-            
-        }else if (restau.rating && restau.newratings.length !== 0) {
-            console.log("ligne et mano")
+            return newReviewsAverage.toFixed(1);
+
+            //Si on a des avis récupérés en ligne et des avis rentrés à la main via la popup
+        } else if (restau.rating && restau.newratings.length !== 0) {
+
             let user_ratings_total = restau.user_ratings_total;
             let user_ratings = restau.rating;
             let user_average = user_ratings_total * user_ratings;
 
             let new_ratings_total = restau.newratings.length;
-            console.log("new-ratings-total" + new_ratings_total);
 
+            //On calcule la moyenne des avis ajoutés
             let sum = 0;
             for (let i = 0; i < new_ratings_total; i++) {
                 sum += restau.newratings[i];
             }
             let new_ratings = sum;
-            console.log("new-ratings" + new_ratings);
 
+            //On divise la somme des avis en ligne + ajoutés par le nombre d'avis en ligne + ajoutés
             let newReviewsAverage = (user_average + new_ratings) / (user_ratings_total + new_ratings_total);
-            console.log("new-reviews-average" + newReviewsAverage);
 
             return newReviewsAverage.toFixed(1);
 
+            //Si on a aucun avis
         } else {
-            console.log("aucun avis")
             return "Aucun avis";
         }
     }
 
-    /*newReviewsAverage(restau) {
-        
-        let user_ratings_total = restau.user_ratings_total;
-        let user_ratings = restau.rating;
-        let user_average = user_ratings_total * user_ratings;
-        
-        let new_ratings_total = restau.newratings.length;
-        console.log("new-ratings-total" + new_ratings_total);
-        
-        let sum = 0;
-        for (let i = 0; i < new_ratings_total; i++) {
-                sum += restau.newratings[i];
-            }
-        let new_ratings = sum;
-        console.log("new-ratings" + new_ratings);
-        
-        let newReviewsAverage = (user_average + new_ratings) / (user_ratings_total + new_ratings_total);
-        console.log("new-reviews-average" + newReviewsAverage);
-        
-        return newReviewsAverage;
-        
-    }*/
-
-
-
-
-    //Method : Affichage infos restaurants
+    //METHOD : Affichage infos restaurants
     showDatas() {
 
         //Boucle pour chaque restaurant
         for (let i = 0; i < this.data.length; i++) {
 
+            //Création tableau avis
             this.data[i].ratings = [];
-            console.log(this.data[i].ratings);
 
+            //Création tableau avis ajoutés à la main
             this.data[i].newratings = [];
-
 
             //Ajoute avis en ligne au tableau
             this.OnlineReviews(this.data[i]);
@@ -316,10 +423,10 @@ class Themap {
     }
 
 
-    //recuperation avis en ligne
+    //METHOD : récuperation avis en ligne
     OnlineReviews(data) {
 
-        var request = {
+        let request = {
             placeId: data.place_id,
         };
 
@@ -340,29 +447,34 @@ class Themap {
     }
 
 
-    //Method filtrer les restaurants par note
+    //METHOD : filtrer les restaurants par notes
     filter() {
 
         //Au clic sur le bouton du filtre
         document.getElementById('btnfiltre').addEventListener("click", (event) => {
             event.stopPropagation();
 
+            //On récupère les valeurs
             let min = document.getElementById("min").value;
             let max = document.getElementById("max").value;
 
+            //On vérifie que les valeurs min et max sont comprises entre 1 et 5
             if ((min > 0 && min <= 5) && (max > 0 && max <= 5) && (min < max)) {
                 document.getElementById('nofilter').style.display = 'none';
 
                 //Pour chaque restaurant
                 for (let i = 0; i < this.data.length; i++) {
 
+                    //On récupère la moyenne
                     let average = this.reviewsAverage(this.data[i]);
 
                     //Si la moyenne est comprise entre les deux nombres du filtre :
                     if (average >= min && average <= max) {
 
+                        //On affiche le marqueur
                         this.markers[i].setVisible(true);
 
+                        //On affiche le bloc infos sur la colonne de gauche
                         document.getElementById('restau' + i).style.display = 'block';
 
                     } else {
@@ -387,26 +499,25 @@ class Themap {
     }
 
 
-    //Method popup avis d'un restaurant
+    //METHOD popup avis d'un restaurant
     showReview(restau) {
 
+        //Récupération propriétés lat et lng
+        //Si notre propriété est un fonction (C'est le cas pour les avis en ligne)
         if (typeof (restau.geometry.location.lat) === 'function') {
             var restauLat = restau.geometry.location.lat();
-
             var restauLng = restau.geometry.location.lng();
+            //Sinon 
         } else {
             var restauLat = restau.geometry.location.lat;
-
             var restauLng = restau.geometry.location.lng;
         }
-
-
-
-
 
         //Affichage de tous les avis
         document.getElementById('popup-reviews').style.opacity = 1;
         document.getElementById('popup-reviews').style.zIndex = 99;
+
+        //Affichage Streetview, nom et moyenne du restaurant
         document.getElementById('popup-reviews').innerHTML = `
                 <div class="row intro">
                     <div class="col-4">
@@ -422,6 +533,7 @@ class Themap {
                 </div>
                 `;
 
+        //Affichage de tous les commentaires
         for (let i = 0; i < restau.ratings.length; i++) {
             document.getElementById('reviews-list').innerHTML += `
                     <div class="review ">
@@ -439,10 +551,7 @@ class Themap {
 
     }
 
-
-
-
-    //Method : Affichage formulaire ajout avis
+    //METHOD : Affichage formulaire ajout avis
     addReview(index) {
         document.getElementById('popup-add-review').style.display = "block";
 
@@ -458,34 +567,32 @@ class Themap {
     }
 
 
-    //Method : Validation formulaire ajout avis
+    //METHOD : Validation formulaire ajout avis
     submitReview() {
         document.getElementById('submit1').addEventListener("click", (event) => {
             event.preventDefault();
             event.stopPropagation();
 
-
-
             //Récupération valeurs du formulaire
             let stars = document.getElementById('addstars').value.trim();
             let comment = document.getElementById('addcomment').value.trim();
 
-            //Si les infos sont correctament remplies on recalcule la moyenne des avis et on ajoute le commentaire 
+            //Si les infos sont correctament remplies on ajoute l'avis au tableau
             if (stars !== "" && stars > 0 && stars <= 5 && comment !== "") {
                 this.data[this.indexActif].ratings.push({
                     stars: Number(stars),
                     comment: comment
                 });
 
-                //Ajoute note au tableau des avis ajoutés à la main
+                //On ajoute la note au tableau des avis ajoutés à la main
                 let ajout = this.data[this.indexActif].newratings.push(Number(stars));
-
-                console.log(this.data);
 
                 document.getElementById('popup-add-review').style.display = "none";
 
                 document.getElementById('restau-average' + this.indexActif).textContent =
+                    //On recalcule la moyenne et on l'ajoute dans la colonne de gauche
                     this.reviewsAverage(this.data[this.indexActif]);
+                //On affiche la popup
                 this.showReview(this.data[this.indexActif]);
 
             } else if (comment == "") {
@@ -500,145 +607,5 @@ class Themap {
 
         });
     }
-
-
-    //Method : Validation formulaire ajout restau
-    submitRestaurant() {
-
-        document.getElementById('submit2').addEventListener("click", (event) => {
-
-            const getAddress = address => {
-                return new Promise((resolve, reject) => {
-
-                    let geocoder = new google.maps.Geocoder();
-
-                    const latlng = {
-                        lat: this.coordoneees.lat(),
-                        lng: this.coordoneees.lng(),
-                    };
-
-                    geocoder.geocode({
-                        location: latlng
-                    }, (results, status) => {
-                        if (status === 'OK') {
-                            resolve(results[0].formatted_address);
-                        } else {
-                            reject(status);
-                        }
-                    });
-                });
-            };
-
-            const restaurantAddress = async () => {
-
-                try {
-                    let location = await getAddress();
-
-                    if (newname !== "") {
-                        this.data.push({
-                            name: newname,
-                            geometry: {
-                                location: {
-                                    lat: this.coordoneees.lat(),
-                                    lng: this.coordoneees.lng()
-                                }
-                            },
-                            vicinity: location
-                        });
-
-
-
-                        const newmarker = new google.maps.Marker({
-                            position: this.coordoneees,
-                            map: this.map,
-                            icon: "../img/picto-restau.png",
-                        });
-                        this.markers.push(newmarker);
-
-                        this.map.panTo(this.coordoneees);
-
-                        var last = this.data.length - 1;
-
-                        this.data[last].ratings = [];
-                        
-                        this.data[last].newratings = [];
-
-                        //Afficher les informations du restaurant sur la section de gauche 
-                        let myRestaurant = document.createElement('article');
-                        myRestaurant.id = 'restau' + last;
-                        let myRestaurantName = document.createElement('h2');
-                        let myRestaurantReview = document.createElement('div');
-                        let myRestaurantAverage = document.createElement('p');
-                        myRestaurantAverage.className = 'restau-average';
-                        myRestaurantAverage.id = 'restau-average' + last;
-
-                        myRestaurantReview.className = 'restau-review';
-                        myRestaurantReview.id = 'restau-review' + last;
-
-                        let starImage = document.createElement('img');
-                        starImage.src = '../img/star.svg';
-
-                        let showRestaurantReview = document.createElement('button');
-                        showRestaurantReview.id = 'show-restau-review' + last;
-                        showRestaurantReview.className = 'avis';
-
-                        let addRestaurantReview = document.createElement('button');
-                        addRestaurantReview.id = 'add-restau-review' + last;
-                        addRestaurantReview.className = 'avis';
-
-                        let myRestaurantAddress = document.createElement('p');
-
-                        myRestaurantName.textContent = this.data[last].name;
-                        myRestaurantAverage.textContent = "Aucun avis";
-                        showRestaurantReview.textContent = 'Voir les avis';
-                        addRestaurantReview.textContent = 'Ajouter un avis';
-                        myRestaurantAddress.textContent = this.data[last].vicinity;
-
-                        myRestaurant.appendChild(myRestaurantName);
-                        myRestaurant.appendChild(myRestaurantReview);
-                        myRestaurant.appendChild(myRestaurantAddress);
-                        myRestaurantReview.appendChild(myRestaurantAverage);
-                        myRestaurantReview.appendChild(starImage);
-                        myRestaurantReview.appendChild(showRestaurantReview);
-                        myRestaurantReview.appendChild(addRestaurantReview);
-
-                        document.getElementById('restaurants').appendChild(myRestaurant);
-
-                        //Au clic sur le bouton "Voir les avis" le détail des avis s'affiche 
-                        document.getElementById('show-restau-review' + last).addEventListener("click", (event) => {
-                            event.stopPropagation();
-                            this.showReview(this.data[last]);
-                        });
-
-                        //Au clic sur le bouton "Ajouter un avis" la popup s'affiche 
-                        document.getElementById('add-restau-review' + last).addEventListener("click", (event) => {
-                            event.stopPropagation();
-                            document.getElementById('addstars').value = "";
-                            document.getElementById('addcomment').value = "";
-                            this.addReview(last);
-                        });
-
-
-                        document.getElementById('popup-add-restaurant').style.display = "none";
-
-                    } else {
-                        alert("Remplissez les champs");
-                    }
-
-
-                } catch (err) {
-                    console.log(err);
-                }
-            };
-
-            restaurantAddress();
-            event.preventDefault();
-
-            let newname = document.getElementById('addname').value.trim();
-
-        });
-
-    }
-
 
 }

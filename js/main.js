@@ -5,19 +5,3 @@ let themap = new Themap();
 function initMap() {
     themap.createMap();
 }
-
-/*
-//Récupération des données json des restaurants
-fetch('../restaurants.json').then(res => {
-
-    if (res.ok) {
-        res.json().then(data => {
-            //Affichage des infos des restaurants
-            themap.showRestaurant(data);
-        })
-
-    } else {
-        console.log("Erreur");
-    }
-})
-*/
