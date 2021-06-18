@@ -99,13 +99,13 @@ class Themap {
                     type: ['restaurant']
                 };
 
-                // Supprime tous les enfant d'un élément
+                // Vide la colonne de gauche qui affiche les restaurants
                 var element = document.getElementById("restaurants");
                 while (element.firstChild) {
                     element.removeChild(element.firstChild);
                 }
 
-                //Boucles supprime les markers existants
+                //Boucle qui supprime les markers existants
                 for (let i = 0; i < this.markers.length; i++) {
                     this.markers[i].setMap(null);
                 }
@@ -116,7 +116,7 @@ class Themap {
                 //Vide tableau des données restaurants
                 this.data = null;
 
-                //Affichage des infos des restaurants à proximité
+                //Affichage des nouvelles infos des restaurants à proximité
                 this.service = new google.maps.places.PlacesService(this.map);
                 this.service.nearbySearch(request, (results, status) => {
                     if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -146,6 +146,7 @@ class Themap {
     //Method : Appel methods qui affiche infos restaus + fonctionnement filtre
     showRestaurant(data) {
 
+        //Regroupe toutes les données des restaurants dans un tableau
         this.data = data;
         console.log(data);
 
@@ -159,48 +160,101 @@ class Themap {
 
     //Method : Calcul moyenne notes d'un restaurant
     reviewsAverage(restau) {
-        /*
-        if (restau.ratings && restau.ratings.length !== 0) {
-            //création d'un tableau qui rassemble toutes les notes
-            let sum = 0;
-            for (let i = 0; i < restau.ratings.length; i++) {
-                sum += restau.ratings[i].stars;
-            }
-            let result = sum / restau.ratings.length;
-            return result.toFixed(1);
-        } else {
-            return "Aucun avis";
-        }*/
-        
-        if (restau.rating) {
-            //création d'un tableau qui rassemble toutes les notes
-            
+
+        if (restau.rating && restau.newratings.length == 0) {
+            console.log("juste en ligne")
+
             return restau.rating;
+        }   else if (typeof restau.rating == 'undefined' && restau.newratings.length !== 0) {
+            console.log("juste mano")
+            
+
+
+            let summano = 0;
+            for (let i = 0; i < restau.newratings.length; i++) {
+                summano += restau.newratings[i];
+            }
+            let new_ratings_mano = summano;
+
+            let newReviewsAverage2 = new_ratings_mano / restau.newratings.length;
+            console.log("new-reviews-average2" + newReviewsAverage2);
+
+            return newReviewsAverage2.toFixed(1);
+            
+            
+        }else if (restau.rating && restau.newratings.length !== 0) {
+            console.log("ligne et mano")
+            let user_ratings_total = restau.user_ratings_total;
+            let user_ratings = restau.rating;
+            let user_average = user_ratings_total * user_ratings;
+
+            let new_ratings_total = restau.newratings.length;
+            console.log("new-ratings-total" + new_ratings_total);
+
+            let sum = 0;
+            for (let i = 0; i < new_ratings_total; i++) {
+                sum += restau.newratings[i];
+            }
+            let new_ratings = sum;
+            console.log("new-ratings" + new_ratings);
+
+            let newReviewsAverage = (user_average + new_ratings) / (user_ratings_total + new_ratings_total);
+            console.log("new-reviews-average" + newReviewsAverage);
+
+            return newReviewsAverage.toFixed(1);
+
         } else {
+            console.log("aucun avis")
             return "Aucun avis";
         }
     }
+
+    /*newReviewsAverage(restau) {
+        
+        let user_ratings_total = restau.user_ratings_total;
+        let user_ratings = restau.rating;
+        let user_average = user_ratings_total * user_ratings;
+        
+        let new_ratings_total = restau.newratings.length;
+        console.log("new-ratings-total" + new_ratings_total);
+        
+        let sum = 0;
+        for (let i = 0; i < new_ratings_total; i++) {
+                sum += restau.newratings[i];
+            }
+        let new_ratings = sum;
+        console.log("new-ratings" + new_ratings);
+        
+        let newReviewsAverage = (user_average + new_ratings) / (user_ratings_total + new_ratings_total);
+        console.log("new-reviews-average" + newReviewsAverage);
+        
+        return newReviewsAverage;
+        
+    }*/
 
 
 
 
     //Method : Affichage infos restaurants
-    async showDatas() {
+    showDatas() {
 
+        //Boucle pour chaque restaurant
         for (let i = 0; i < this.data.length; i++) {
 
             this.data[i].ratings = [];
             console.log(this.data[i].ratings);
 
+            this.data[i].newratings = [];
+
+
             //Ajoute avis en ligne au tableau
-            await this.OnlineReviews(this.data[i]);
+            this.OnlineReviews(this.data[i]);
 
             //Créer le marker associé sur la Google map
             const marker = new google.maps.Marker({
                 position: this.data[i].geometry.location,
                 icon: "../img/picto-restau.png",
                 map: this.map,
-                //restaurant: this.reviewsAverage(this.data[i])
             });
             this.markers.push(marker);
 
@@ -410,6 +464,8 @@ class Themap {
             event.preventDefault();
             event.stopPropagation();
 
+
+
             //Récupération valeurs du formulaire
             let stars = document.getElementById('addstars').value.trim();
             let comment = document.getElementById('addcomment').value.trim();
@@ -421,9 +477,15 @@ class Themap {
                     comment: comment
                 });
 
+                //Ajoute note au tableau des avis ajoutés à la main
+                let ajout = this.data[this.indexActif].newratings.push(Number(stars));
+
+                console.log(this.data);
+
                 document.getElementById('popup-add-review').style.display = "none";
 
-                document.getElementById('restau-average' + this.indexActif).textContent = this.reviewsAverage(this.data[this.indexActif]);
+                document.getElementById('restau-average' + this.indexActif).textContent =
+                    this.reviewsAverage(this.data[this.indexActif]);
                 this.showReview(this.data[this.indexActif]);
 
             } else if (comment == "") {
@@ -498,6 +560,8 @@ class Themap {
                         var last = this.data.length - 1;
 
                         this.data[last].ratings = [];
+                        
+                        this.data[last].newratings = [];
 
                         //Afficher les informations du restaurant sur la section de gauche 
                         let myRestaurant = document.createElement('article');
