@@ -67,7 +67,7 @@ class Themap {
             this.map.addListener("click", (e) => {
                 event.stopPropagation();
                 document.getElementById('addname').value = "";
-                this.addNewRestaurant(e.latLng, this.map);
+                this.addNewRestaurant();
                 this.coordoneees = e.latLng;
             });
 
@@ -337,16 +337,19 @@ class Themap {
     * @param {object} restau - 1 élément restaurant du tableau des restaurants.
     */
     showReview(restau) {
+        
+        let restauLat = null;
+        let restauLng = null;
 
         //Récupération propriétés lat et lng
         //Si notre propriété est un fonction (C'est le cas pour les avis en ligne)
         if (typeof (restau.geometry.location.lat) === 'function') {
-            var restauLat = restau.geometry.location.lat();
-            var restauLng = restau.geometry.location.lng();
+            restauLat = restau.geometry.location.lat();
+            restauLng = restau.geometry.location.lng();
             //Sinon 
         } else {
-            var restauLat = restau.geometry.location.lat;
-            var restauLng = restau.geometry.location.lng;
+            restauLat = restau.geometry.location.lat;
+            restauLng = restau.geometry.location.lng;
         }
 
         document.getElementById('popup-reviews').style.opacity = 1;
@@ -419,7 +422,7 @@ class Themap {
                 });
 
                 //On ajoute la note au tableau des avis ajoutés à la main
-                let ajout = this.data[this.indexActif].newratings.push(Number(stars));
+                this.data[this.indexActif].newratings.push(Number(stars));
 
                 document.getElementById('popup-add-review').style.display = "none";
 
@@ -445,10 +448,8 @@ class Themap {
 
     /**
     * Ajout d'un nouveau restaurant au clic.
-    * @param {object} latLng - Coordonnées du point cliqué.
-    * @param {object} map - La carte.
     */
-    addNewRestaurant(latLng, map) {
+    addNewRestaurant() {
 
         document.getElementById('popup-add-restaurant').style.display = "block";
 
